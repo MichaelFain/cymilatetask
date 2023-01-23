@@ -1,6 +1,5 @@
-
-//import 'cypress-mochawesome-reporter/register';
-
+//
+//
 describe('Login functionality and security', () => {
     beforeEach(() => {
         cy.visit('https://app.cymulate.com/login')
@@ -52,7 +51,24 @@ describe('Login functionality and security', () => {
 
     })
 
-    // //6.Verify that the user is able to reset their password if they have forgotten it.
+    // 5.1 Validate the WAF attack.
+    it('waf attack validation', () => {
+        cy.visit('https://app.cymulate.com/global_report')
+        cy.get('[id="email"]').type('candidate_user@cymulate.com')
+        cy.get('[id="password"]').type('Aa123456')
+        cy.get('[test-id="sign-in"]').click()
+        cy.get('[class="btn-cymulate empty"]').click()
+        cy.get('[class="table-row attack-item-container"]').click()
+        //validate the WAF URL at the following way https://ekslabs.cymulatedev.com
+        cy.get('[class="report-summary-data"]').should('contain', 'https://ekslabs.cymulatedev.com')
+        //validate the assessment status that is completed
+        cy.get('[class="cymulate-tag-design green"]').should('contain', 'Completed')
+        //validate the overall score: 29.
+        cy.get('[class="report-score-container"]').should('contain', '29')
+
+    })
+
+//      //6.Verify that the user is able to reset their password if they have forgotten it.
     it('reset password', () => {
         cy.contains('Forgot my password').click()
         cy.url().should('include', '/forgot')
